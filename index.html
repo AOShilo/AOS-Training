@@ -1,0 +1,969 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="AOS Q2 2026 Training">
+<title>AOS Q2 2026 Training</title>
+
+<!-- iPhone Home Screen Icon — #FFCE00 background, black flexing arm SVG -->
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; background: #F0F0EC; font-family: 'Courier New', monospace; color: #1C1C1C; font-size: 14px; }
+  button { font-family: 'Courier New', monospace; cursor: pointer; }
+  input { font-family: 'Courier New', monospace; }
+  input[type=number]::-webkit-inner-spin-button,
+  input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; }
+
+  /* ── LAYOUT ── */
+  #app { display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+  #header { background: #fff; border-bottom: 1px solid #DDDDD8; flex-shrink: 0; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+  #content { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding-bottom: 20px; }
+
+  /* ── TABS ── */
+  .nav-tabs { display: flex; border-bottom: 1px solid #DDDDD8; }
+  .nav-tab { flex: 1; padding: 10px 4px; background: none; border: none; border-bottom: 2px solid transparent; font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: #888; transition: all .15s; }
+  .nav-tab.active { color: #1C1C1C; border-bottom-color: #1C1C1C; }
+
+  .day-tabs { display: flex; background: #fff; border-bottom: 1px solid #DDDDD8; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .day-tab { flex: 1; min-width: 80px; padding: 12px 8px; background: none; border: none; border-bottom: 3px solid transparent; text-align: left; transition: all .15s; }
+  .day-tab .dt-label { font-size: 8px; letter-spacing: 2px; color: #999; margin-bottom: 3px; }
+  .day-tab .dt-title { font-size: 12px; font-weight: 700; color: #AAAAAA; }
+  .day-tab .dt-int { font-size: 8px; color: #CCCCCC; margin-top: 2px; }
+  .day-tab.active .dt-title { color: #111; }
+
+  /* ── EXERCISE CARD ── */
+  .ex-card { border: 1px solid #DDDDD8; background: #fff; margin-bottom: 6px; border-radius: 4px; transition: all .15s; }
+  .ex-card.open { border-color: var(--accent); background: #FAFAF7; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+  .ex-header { width: 100%; background: none; border: none; padding: 14px 16px; display: grid; grid-template-columns: 1fr 24px; gap: 10px; align-items: start; text-align: left; }
+  .ex-name { font-size: 13px; font-weight: 700; color: #111; }
+  .ex-cat-badge { font-size: 8px; letter-spacing: 1px; padding: 2px 7px; border-radius: 2px; display: inline-block; }
+  .ex-logged-badge { font-size: 8px; color: #5A8A00; background: #EEF8E0; border: 1px solid #A0CC60; padding: 2px 7px; border-radius: 2px; letter-spacing: 1px; }
+  .ex-pills { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 6px; }
+  .pill-label { font-size: 8px; color: #666; letter-spacing: 2px; }
+  .pill-val { font-size: 11px; font-weight: 600; color: #222; margin-left: 4px; }
+  .ex-toggle { font-size: 20px; color: #888; transition: transform .15s, color .15s; line-height: 1; padding-top: 2px; }
+  .ex-card.open .ex-toggle { transform: rotate(45deg); }
+
+  .ex-body { padding: 0 16px 18px; }
+  .ex-divider { border-top: 1px solid #EAEAE6; padding-top: 14px; }
+
+  .section-label { font-size: 8px; letter-spacing: 3px; color: #444; margin-bottom: 6px; }
+  .tempo-box { background: #F8F8F4; border: 1px solid #E8E8E3; border-radius: 3px; padding: 10px 12px; margin-bottom: 12px; }
+  .tempo-main { font-size: 11px; font-weight: 700; color: #111; margin-bottom: 3px; }
+  .tempo-detail { font-size: 11px; color: #333; line-height: 1.6; }
+
+  .teo-box { border-radius: 3px; padding: 10px 12px; margin-bottom: 12px; }
+  .teo-label { font-size: 8px; letter-spacing: 3px; font-weight: 700; margin-bottom: 6px; }
+  .teo-text { font-size: 11px; color: #222; line-height: 1.75; }
+
+  .muscle-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 12px; }
+  .muscle-tag { font-size: 9px; padding: 3px 8px; background: #F2F2EE; color: #222; border: 1px solid #E4E4DF; border-radius: 3px; }
+
+  .rationale-text { font-size: 11px; color: #333; line-height: 1.75; border-left: 2px solid #E0E0DB; padding-left: 12px; margin-bottom: 14px; }
+  .sub-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 16px; }
+  .sub-tag { font-size: 9px; padding: 3px 8px; background: #F8F8F5; color: #333; border: 1px solid #E8E8E3; border-radius: 3px; }
+
+  /* ── SET INPUT ── */
+  .set-log-header { font-size: 8px; letter-spacing: 3px; color: #444; margin-bottom: 12px; border-top: 1px solid #EAEAE6; padding-top: 14px; }
+  .set-input-wrap { margin-bottom: 12px; padding: 12px 12px; border-radius: 4px; border: 1px solid #E8E8E3; background: #FAFAFA; transition: all .15s; }
+  .set-input-wrap.saved { background: #F6FAF0; border-color: #B8D880; }
+  .set-num { font-size: 10px; font-weight: 700; letter-spacing: 2px; color: #333; margin-bottom: 7px; }
+  .prev-badge { font-size: 10px; color: #333; padding: 4px 9px; background: #EEF4FF; border: 1px solid #BBCCEE; border-radius: 3px; display: inline-block; margin-bottom: 8px; }
+  .set-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .set-row input { width: 68px; padding: 9px 8px; border: 1px solid #CCCCCC; border-radius: 3px; font-size: 14px; font-family: 'Courier New', monospace; background: #fff; color: #111; outline: none; -webkit-appearance: none; }
+  .set-row input.saved { border-color: #A0C060; }
+  .set-row .unit { font-size: 11px; color: #333; font-weight: 600; }
+  .set-row .times { font-size: 16px; color: #444; }
+  .save-btn { padding: 9px 14px; border: none; border-radius: 3px; font-size: 10px; letter-spacing: 1.5px; font-weight: 700; font-family: 'Courier New', monospace; transition: all .15s; }
+
+  /* ── WEEK SELECTOR ── */
+  .week-nav { display: flex; align-items: center; gap: 6px; }
+  .week-btn { width: 28px; height: 28px; border: 1px solid #DDDDD8; background: #F8F8F4; color: #222; border-radius: 3px; font-size: 16px; display: flex; align-items: center; justify-content: center; }
+  .week-chip { padding: 4px 14px; border-radius: 3px; min-width: 90px; text-align: center; }
+  .week-num { font-size: 14px; font-weight: 700; }
+  .week-block { font-size: 8px; letter-spacing: 1px; opacity: 0.8; }
+  .week-note { font-size: 9px; color: #555; max-width: 200px; text-align: right; line-height: 1.4; margin-top: 4px; }
+
+  /* ── DATA TOOLBAR ── */
+  .data-toolbar { display: flex; gap: 8px; padding: 10px 16px; background: #F8F8F4; border-bottom: 1px solid #E8E8E3; flex-wrap: wrap; }
+  .data-btn { padding: 7px 12px; font-size: 9px; letter-spacing: 1.5px; font-weight: 700; border-radius: 3px; border: 1px solid #DDDDD8; background: #fff; color: #333; }
+  .data-btn.danger { border-color: #FFAAAA; color: #CC0000; background: #FFF8F8; }
+
+  /* ── WARMUP + SCHEDULE ── */
+  .info-card { background: #fff; border: 1px solid #DDDDD8; border-radius: 4px; padding: 14px 16px; margin-bottom: 10px; }
+  .info-card-title { font-size: 9px; font-weight: 700; letter-spacing: 2px; margin-bottom: 10px; }
+  .info-row { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid #F0F0EB; font-size: 11px; }
+  .info-row:last-child { border-bottom: none; }
+  .week-row { display: flex; gap: 12px; padding: 11px 0; border-bottom: 1px solid #EAEAE6; cursor: pointer; align-items: flex-start; }
+  .week-row.current { background: #FFFBE6; border-radius: 3px; padding-left: 6px; padding-right: 6px; }
+  .week-dot { width: 32px; height: 32px; flex-shrink: 0; border-radius: 3px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; border: 1px solid #DDD; }
+  .sched-row { display: flex; gap: 12px; padding: 9px 0; border-bottom: 1px solid #EAEAE6; align-items: center; }
+  .prog-row { margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid #F0F0EB; }
+  .prog-row:last-child { border-bottom: none; }
+  .prog-title { font-size: 10px; font-weight: 700; color: #5A8A00; letter-spacing: 1px; margin-bottom: 3px; }
+  .prog-desc { font-size: 11px; color: #333; line-height: 1.6; }
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="header">
+    <div style="padding:14px 16px 0">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px;margin-bottom:12px">
+        <div>
+          <div style="font-size:8px;letter-spacing:4px;color:#666;margin-bottom:4px">MIN-MAX × NIPPARD × TEO</div>
+          <h1 style="font-size:clamp(16px,4vw,22px);font-weight:700;letter-spacing:-0.5px;color:#111;line-height:1.1">AOS Q2 2026 TRAINING</h1>
+          <div style="font-size:9px;color:#444;margin-top:3px;letter-spacing:2px">4 DAYS · 12 WEEKS · 1–2 SETS TO FAILURE</div>
+        </div>
+        <div>
+          <div style="font-size:8px;letter-spacing:3px;color:#555;margin-bottom:4px">CURRENT WEEK</div>
+          <div class="week-nav">
+            <button class="week-btn" onclick="changeWeek(-1)">‹</button>
+            <div class="week-chip" id="week-chip">
+              <div class="week-num" id="week-num">WEEK 1</div>
+              <div class="week-block" id="week-block">INTRO</div>
+            </div>
+            <button class="week-btn" onclick="changeWeek(1)">›</button>
+          </div>
+          <div class="week-note" id="week-note"></div>
+        </div>
+      </div>
+      <div class="nav-tabs">
+        <button class="nav-tab active" onclick="switchTab('program',this)">Program</button>
+        <button class="nav-tab" onclick="switchTab('warmup',this)">Warm-Up</button>
+        <button class="nav-tab" onclick="switchTab('schedule',this)">Schedule</button>
+        <button class="nav-tab" onclick="switchTab('data',this)">Data</button>
+      </div>
+    </div>
+  </div>
+  <div id="content"></div>
+</div>
+
+<script>
+// ─────────────────────────────────────────────────────────────────────────────
+// DATA
+// ─────────────────────────────────────────────────────────────────────────────
+
+const DAYS = [
+  {
+    id:"lower", label:"DAY A", title:"LOWER", sub:"Quad, Hamstring & Glute",
+    accent:"#5A8A00", intensity:"HEAVY",
+    exercises:[
+      { name:"Lying Leg Curl", cat:"PRE-ACTIVATION", sets:2, reps:"8–10",
+        rir:"Set 1: RIR 2 → Set 2: RIR 0", tempo:"3–1–1–0",
+        tempoNote:"3s eccentric / 1s pause at full stretch / 1s curl / 0s top",
+        teo:"Full reps to failure, then LENGTHENED PARTIALS — stay in the bottom half where the hamstring is most stretched. The moment the eccentric gets fast, the set quality has dropped. Actively resist the weight down — don't let it drop.",
+        muscles:["Hamstrings — short head bias"],
+        rationale:"Pre-activates the hamstrings before compound loading. The hamstring is most vulnerable to damage (and growth) in the lengthened position. Lying curl targets the short head — pairs with Seated Leg Curl on Full Body Day for complete coverage.",
+        subs:["Seated Leg Curl","Nordic Ham Curl"] },
+      { name:"Hip Abduction Machine", cat:"PRE-ACTIVATION", sets:2, reps:"12–15",
+        rir:"RIR 0 — go to failure", tempo:"2–0–1–1",
+        tempoNote:"2s open / 0s pause / 1s return / 1s hold at stretch (legs together)",
+        teo:"INTRA-SET STRETCH HOLD: after hitting failure, return legs together (stretched position), hold for 10 seconds, then squeeze out 3–5 more reps. Feel the outside of the glute working — not just moving the machine.",
+        muscles:["Glute Medius","Glute Minimus","TFL"],
+        rationale:"The glute medius is not trained by any compound movement in this program. It's responsible for hip stability and lateral leg drive. Direct isolation here pre-activates it before squatting.",
+        subs:["Cable Hip Abduction","Banded Abduction"] },
+      { name:"Hack Squat", cat:"MAX COMPOUND", sets:2, reps:"6–8",
+        rir:"Set 1: RIR 2 → Set 2: RIR 0", tempo:"3–1–1–0",
+        tempoNote:"3s descent / 1s pause at bottom / drive up / no pause at top",
+        teo:"LENGTHENED PARTIALS after Set 2 failure — stay in the bottom third of the ROM for 3–5 extra reps. The 1-second pause at the bottom removes the stretch reflex — the quad must generate force from a dead stop in its most lengthened position.",
+        muscles:["Quads","Glutes","Adductors"],
+        rationale:"Primary quad compound. Machine allows full focus on quad loading without balance demand. The pre-activation from leg curls and abductions means the hamstrings and glute medius are already firing when you load the compound.",
+        subs:["Barbell Back Squat","Smith Machine Squat","Pendulum Squat"] },
+      { name:"Step-Ups", cat:"SECONDARY COMPOUND", sets:2, reps:"8–10 / side",
+        rir:"RIR 1", tempo:"1–0–2–0",
+        tempoNote:"1s step up / 0s / 2s controlled step down / 0s",
+        teo:"The controlled eccentric step DOWN is where the quad and glute are working hardest. Don't just fall off the box — actively resist gravity on the way down. No push-off from the back foot — all work from the front leg.",
+        muscles:["Quads","Glutes","Hamstrings"],
+        rationale:"Unilateral quad/glute movement that addresses side-to-side imbalances. The eccentric step down is a significant growth stimulus. Lower systemic fatigue than a second bilateral squat.",
+        subs:["Bulgarian Split Squat","Reverse Lunge","DB Split Squat"] },
+      { name:"Good Mornings", cat:"MAX COMPOUND", sets:2, reps:"6–8",
+        rir:"Set 1: RIR 3 → Set 2: RIR 1", tempo:"3–2–1–0",
+        tempoNote:"3s hinge back / 2s pause at full hamstring stretch / drive up / 0s",
+        teo:"The 2-second pause at the bottom is the entire point of this exercise. This is stretch-mediated hypertrophy in its purest form — hamstring fully loaded in its most lengthened position, stretch reflex removed.",
+        muscles:["Hamstrings","Glutes","Erectors"],
+        rationale:"Primary hip hinge. Barbell on the back — different loading pattern to RDL, same hamstring stretch stimulus. Pairs with Hip Thrusts to cover the full glute length-tension curve.",
+        subs:["Romanian Deadlift","Cable Pull-Through","DB Good Mornings"] },
+      { name:"Hip Thrusts", cat:"PRIMARY ISOLATION", sets:2, reps:"8–12",
+        rir:"Set 1: RIR 2 → Set 2: RIR 0", tempo:"2–0–1–1",
+        tempoNote:"2s descent / 0s / drive up / 1s squeeze at full extension",
+        teo:"INTRA-SET REST-PAUSE: after failure, hold at the top for 5 seconds, then squeeze out 2–3 more reps. The 1-second squeeze at the top on every rep is non-negotiable — this is the unique value of hip thrusts.",
+        muscles:["Glutes — contracted position","Hamstrings","Adductors"],
+        rationale:"The only exercise that maximally loads the glute in its contracted position (hip extended). Research by Contreras et al. shows hip thrusts produce the highest glute EMG of any exercise.",
+        subs:["Cable Hip Extension","Machine Hip Extension","Smith Machine Hip Thrust"] },
+    ]
+  },
+  {
+    id:"upper", label:"DAY B", title:"UPPER", sub:"Chest, Back, Shoulder, Arms",
+    accent:"#006E9A", intensity:"HEAVY",
+    exercises:[
+      { name:"Barbell Incline Press", cat:"MAX COMPOUND", sets:2, reps:"5–7",
+        rir:"Set 1: RIR 3 → Set 2: RIR 0", tempo:"3–0–1–0",
+        tempoNote:"3s descent to chest / 0s / drive up / 0s",
+        teo:"3-second eccentric keeps the pec under tension and prevents bouncing off the chest. Set 2 to true failure. Retract scapulae throughout. Touch the lower chest — don't cut the ROM short.",
+        muscles:["Upper Pec","Front Delt","Triceps"],
+        rationale:"Primary horizontal press. Incline selected for upper pec emphasis — the clavicular head is the most undertrained portion. Primary strength stimulus for the chest.",
+        subs:["DB Incline Press","Smith Machine Incline Press","Machine Incline Press"] },
+      { name:"Close-Grip Lat Pulldown", cat:"MAX COMPOUND", sets:2, reps:"8–10",
+        rir:"Set 1: RIR 2 → Set 2: RIR 1", tempo:"3–1–1–0",
+        tempoNote:"3s eccentric back to top / 1s pause at full lat stretch / pull down / 0s",
+        teo:"LENGTHENED PARTIALS after failure — stay in the top half where the lat is most stretched. Let the shoulder girdle ELEVATE fully at the top of every rep. Drive elbows to hips — not just back.",
+        muscles:["Lats","Mid Traps","Biceps","Rear Delts"],
+        rationale:"Vertical pull — essential for lat width and thickness. Full shoulder girdle elevation at the top is the most important technique point.",
+        subs:["Close-Grip Pull-Up","Wide-Grip Pulldown","1-Arm Cable Pulldown"] },
+      { name:"Seated DB Shoulder Press", cat:"MAX COMPOUND", sets:2, reps:"8–10",
+        rir:"Set 1: RIR 3 → Set 2: RIR 1", tempo:"3–0–1–0",
+        tempoNote:"3s descent to ear level / 0s / press up / 0s",
+        teo:"3-second eccentric protects the shoulder joint. Press to full lockout. Actively resist the weight on the way down — don't just lower it.",
+        muscles:["All 3 Delt Heads","Triceps","Upper Traps"],
+        rationale:"Primary compound shoulder movement. DB allows greater ROM and independent arm path vs barbell.",
+        subs:["Barbell OHP","Smith Machine OHP","Machine Shoulder Press"] },
+      { name:"Chest-Supported Row", cat:"MAX COMPOUND", sets:2, reps:"8–10",
+        rir:"Set 1: RIR 2 → Set 2: RIR 1", tempo:"2–0–1–2",
+        tempoNote:"2s eccentric / 0s / pull / 2s squeeze at peak contraction",
+        teo:"The 2-second squeeze at peak contraction is the defining technique — this is where mid-traps and rhomboids are doing maximum work. Flare elbows 45° for rear delt emphasis.",
+        muscles:["Mid Traps","Rhomboids","Rear Delts","Lats","Biceps"],
+        rationale:"Horizontal pull — balances pressing volume. 1:1 push/pull ratio is a structural health requirement. Chest-supported removes lower back fatigue.",
+        subs:["Chest-Supported DB Row","Seated Cable Row","Machine Row"] },
+      { name:"Dips", cat:"SECONDARY COMPOUND", sets:2, reps:"6–8",
+        rir:"Set 1: RIR 3 → Set 2: RIR 0", tempo:"3–0–1–0",
+        tempoNote:"3s descent / 0s / drive up / 0s",
+        teo:"Full depth — let the shoulder come into full flexion at the bottom to get the tricep long head stretch. Upright torso = tricep focus. To true failure on set 2.",
+        muscles:["Triceps — all heads","Lower Pec","Front Delt"],
+        rationale:"Primary tricep compound. Greater tricep long head stretch than CGBP. Can be loaded with a dip belt for progressive overload.",
+        subs:["Close-Grip Bench Press","Machine Dip","Weighted Push-Up"] },
+      { name:"EZ Bar Curl", cat:"ISOLATION", sets:2, reps:"10–12",
+        rir:"Set 1: RIR 1 → Set 2: RIR 0", tempo:"3–1–1–0",
+        tempoNote:"3s eccentric / 1s pause at full stretch at bottom / curl up / 0s",
+        teo:"LENGTHENED PARTIALS after failure. The 1-second pause at the bottom with the EZ bar pulling the bicep into its most lengthened position is stretch-mediated loading.",
+        muscles:["Biceps — both heads","Brachialis"],
+        rationale:"Primary bicep movement on heavy upper day. EZ bar reduces wrist stress while maintaining similar bicep stimulus.",
+        subs:["Barbell Curl","DB Curl","Cable Curl"] },
+      { name:"Reverse EZ Bar Curl", cat:"ISOLATION", sets:2, reps:"10–12",
+        rir:"RIR 0 — to failure", tempo:"3–0–1–0",
+        tempoNote:"3s eccentric / 0s / curl up / 0s",
+        teo:"The pronated grip shifts emphasis to the brachialis and brachioradialis. 3-second eccentric is critical — most people rush the lowering here.",
+        muscles:["Brachialis","Brachioradialis","Wrist Extensors"],
+        rationale:"Trains brachialis and brachioradialis which the EZ bar curl underloads. The brachialis pushes the bicep peak upward. Also provides forearm extensor work.",
+        subs:["Reverse DB Curl","Reverse Cable Curl","Hammer Curl"] },
+      { name:"Machine Lateral Raise", cat:"ISOLATION", sets:2, reps:"12–15",
+        rir:"Set 1: RIR 1 → Set 2: RIR 0", tempo:"2–0–1–1",
+        tempoNote:"2s eccentric / 0s / raise / 1s hold at top",
+        teo:"INTRA-SET REST-PAUSE: after failure, return to the stretched position, hold for 5 seconds, then 3–5 more reps. Machine provides consistent resistance throughout the ROM.",
+        muscles:["Medial Delt"],
+        rationale:"Medial delt cannot be adequately trained through pressing alone. Machine preferred for consistent resistance through the full ROM.",
+        subs:["Cable Lateral Raise","DB Lateral Raise"] },
+    ]
+  },
+  {
+    id:"arms", label:"DAY C", title:"ARMS & DELTS", sub:"Biceps, Triceps, Shoulders, Forearms",
+    accent:"#AA0066", intensity:"ISOLATION",
+    exercises:[
+      { name:"Bayesian Cable Curl", cat:"MAX ISOLATION", sets:2, reps:"10–12",
+        rir:"Set 1: RIR 1 → Set 2: RIR 0", tempo:"3–2–1–0",
+        tempoNote:"3s eccentric / 2s pause at full stretch (arm behind body) / curl up / 0s",
+        teo:"The 2-second pause at the bottom in the fully stretched position IS the exercise. LENGTHENED PARTIALS after failure — stay in the bottom 40% where the stretch is greatest. This is Teo's signature bicep protocol.",
+        muscles:["Biceps Long Head"],
+        rationale:"The long head only reaches full stretch when the arm is extended behind the body. The Bayesian curl maximises this. Most important single bicep exercise for peak development.",
+        subs:["Incline DB Curl","Standing DB Curl (arm back)"] },
+      { name:"Overhead Cable Tricep Extension", cat:"MAX ISOLATION", sets:2, reps:"10–12",
+        rir:"Set 1: RIR 1 → Set 2: RIR 0", tempo:"3–2–1–0",
+        tempoNote:"3s eccentric / 2s pause at full stretch overhead / extend / 0s",
+        teo:"LENGTHENED PARTIALS after failure — stay in the bottom half (arms overhead) where the long head is most stretched. The 2-second pause at the bottom is where the growth signal is strongest.",
+        muscles:["Triceps Long Head"],
+        rationale:"The long head is ~55-60% of total tricep mass and only reaches full stretch overhead. Most lifters skip this — it's the highest-value tricep exercise for mass.",
+        subs:["Overhead DB Extension","Skull Crusher"] },
+      { name:"Cable EZ Bar Curl", cat:"ISOLATION", sets:2, reps:"10–12",
+        rir:"Set 1: RIR 1 → Set 2: RIR 0", tempo:"3–1–1–0",
+        tempoNote:"3s eccentric / 1s pause at stretch / curl up / 0s",
+        teo:"Different angle to Bayesian curl — hits the bicep through a different moment arm. Cable provides constant tension. To failure on Set 2.",
+        muscles:["Biceps — both heads","Brachialis"],
+        rationale:"Second bicep stimulus from a different angle and moment arm to the Bayesian curl. Cable version maintains tension at both ends of the ROM.",
+        subs:["EZ Bar Curl","DB Curl","Preacher Curl"] },
+      { name:"Tricep Pushdown — Rope", cat:"ISOLATION", sets:2, reps:"12–15",
+        rir:"RIR 0 — go to failure", tempo:"2–0–1–1",
+        tempoNote:"2s eccentric / 0s / push down / 1s squeeze at full extension",
+        teo:"LENGTHENED PARTIALS after failure. Flare the rope at the bottom on every rep — maximises lateral head activation. The 1-second squeeze at full extension maximises contraction.",
+        muscles:["Triceps Lateral Head","Triceps Medial Head"],
+        rationale:"Complements overhead extension by targeting lateral and medial heads in a contracted position. Together they cover all three tricep heads.",
+        subs:["V-Bar Pushdown","Single-Arm Pushdown"] },
+      { name:"Cable Lateral Raise", cat:"ISOLATION", sets:2, reps:"12–15",
+        rir:"Set 1: RIR 1 → Set 2: RIR 0", tempo:"2–0–1–0",
+        tempoNote:"2s eccentric / 0s / raise / 0s",
+        teo:"INTRA-SET REST-PAUSE: after failure, return to the stretched position, hold for 5 seconds, then 3–5 more reps. Cable provides resistance at the bottom where the delt is most stretched.",
+        muscles:["Medial Delt"],
+        rationale:"Cable provides resistance through the entire ROM including the stretched position — the critical difference from DB raises.",
+        subs:["DB Lateral Raise","Machine Lateral Raise"] },
+      { name:"Face Pull", cat:"ISOLATION", sets:2, reps:"12–15",
+        rir:"RIR 0", tempo:"2–2–1–0",
+        tempoNote:"2s eccentric / 2s hold at peak external rotation / pull / 0s",
+        teo:"The 2-second hold at peak external rotation IS the exercise. Pull to forehead, elbows HIGH, thumbs pointing back. Own the externally rotated position.",
+        muscles:["Rear Delt","External Rotators","Lower Traps"],
+        rationale:"Non-negotiable shoulder health movement. Counterbalances all pressing. Also trains external rotation — the primary shoulder health pattern.",
+        subs:["Rear Delt Cable Fly","Band Pull-Apart","Reverse Pec Deck"] },
+      { name:"Wrist Roller", cat:"FOREARM", sets:2, reps:"3 rolls up and down",
+        rir:"To fatigue", tempo:"Slow and controlled",
+        tempoNote:"Roll up slowly, roll down slowly — no rushing",
+        teo:"Full control both directions. Trains both flexors and extensors through the full forearm simultaneously.",
+        muscles:["Wrist Flexors","Wrist Extensors","Brachioradialis"],
+        rationale:"Comprehensive forearm training in a single movement. Both flexors and extensors under sustained tension.",
+        subs:["Plate Pinch","Farmer's Carry"] },
+      { name:"Seated Wrist Curl", cat:"FOREARM", sets:2, reps:"12–15",
+        rir:"RIR 0", tempo:"2–1–1–0",
+        tempoNote:"2s eccentric / 1s stretch at bottom / curl up / 0s",
+        teo:"Full stretch at the bottom — let the bar roll to your fingertips. This is where the forearm flexors are most loaded.",
+        muscles:["Wrist Flexors","Forearm Flexors"],
+        rationale:"Isolated forearm flexor work. Completes forearm development alongside the wrist roller.",
+        subs:["DB Wrist Curl","Cable Wrist Curl"] },
+      { name:"Seated Reverse Wrist Curl", cat:"FOREARM", sets:2, reps:"12–15",
+        rir:"RIR 0", tempo:"2–1–1–0",
+        tempoNote:"2s eccentric / 1s stretch / curl up / 0s",
+        teo:"Overhand grip. Full stretch at the bottom. Extensor weakness contributes to lateral epicondylitis — balance is important.",
+        muscles:["Wrist Extensors","Forearm Extensors"],
+        rationale:"Isolated forearm extensor work. Balances flexor and extensor development for wrist and elbow health.",
+        subs:["DB Reverse Wrist Curl","Cable Reverse Wrist Curl"] },
+    ]
+  },
+  {
+    id:"fullbody", label:"DAY D", title:"FULL BODY", sub:"Frequency — Lower then Upper",
+    accent:"#B05500", intensity:"MODERATE–HIGH",
+    exercises:[
+      { name:"Zercher Squat", cat:"PRIMARY COMPOUND", sets:2, reps:"8–10",
+        rir:"RIR 1 — keep one in reserve", tempo:"3–0–1–0",
+        tempoNote:"3s descent / 0s / drive up / 0s",
+        teo:"Slightly higher RIR — the Zercher squat has high technical demand. Going to absolute failure here carries more risk than a leg press. Higher reps accumulate quad and glute volume without spinal loading.",
+        muscles:["Quads","Glutes","Upper Back","Core"],
+        rationale:"Primary lower body compound on Full Body Day. The Zercher loads the anterior chain differently to the Hack Squat — weight in front increases upper back and core demand.",
+        subs:["Goblet Squat","Front Squat","Safety Bar Squat"] },
+      { name:"Leg Press", cat:"SECONDARY COMPOUND", sets:2, reps:"8–10",
+        rir:"RIR 0 — to failure", tempo:"3–1–1–0",
+        tempoNote:"3s eccentric / 1s pause at bottom stretch / drive up / 0s",
+        teo:"LENGTHENED PARTIALS after failure — stay in the bottom half. The 1-second pause removes the stretch reflex. Feet low and narrow for maximum quad emphasis.",
+        muscles:["Quads","Glutes"],
+        rationale:"Second quad stimulus for the week. Machine allows full focus on quad contraction. Higher reps create metabolic stress — different stimulus to Lower Day.",
+        subs:["Smith Machine Squat","Hack Squat"] },
+      { name:"Seated Leg Curl", cat:"ISOLATION", sets:2, reps:"8–10",
+        rir:"RIR 0 — to failure", tempo:"3–2–1–0",
+        tempoNote:"3s eccentric / 2s pause at full stretch / curl / 0s",
+        teo:"The 2-second pause at full stretch (hip flexed, knee extended) is the most important technique point. This is your ONLY long head hamstring isolation for the week. Own this stretch — don't rush.",
+        muscles:["Hamstrings — Long Head"],
+        rationale:"Eugene Teo's key insight: seated vs lying changes which hamstring head is most loaded. Seated = hip flexed = long head stretched. Fundamentally different to Lying Leg Curl on Lower Day.",
+        subs:["Lying Leg Curl","Nordic Ham Curl"] },
+      { name:"Flat Bench Press", cat:"SECONDARY COMPOUND", sets:2, reps:"8–10",
+        rir:"RIR 0 — to failure", tempo:"3–0–1–0",
+        tempoNote:"3s descent / 0s / drive up / 0s",
+        teo:"Flat bench emphasises the sternal head of the pec (lower and mid chest). 3-second eccentric throughout. To failure on set 2.",
+        muscles:["Pec Major — sternal head","Front Delt","Triceps"],
+        rationale:"Second chest stimulus. Flat bench hits the sternal head — a different portion to the Incline Press on Upper Day. Together they provide complete chest coverage.",
+        subs:["DB Bench Press","Machine Chest Press","Smith Machine Bench"] },
+      { name:"Wide-Grip Lat Pulldown", cat:"SECONDARY COMPOUND", sets:2, reps:"8–10",
+        rir:"RIR 0 — to failure", tempo:"3–1–1–0",
+        tempoNote:"3s eccentric / 1s pause at full lat stretch at top / pull / 0s",
+        teo:"Full shoulder girdle elevation at the top. Wide grip shifts emphasis toward lat WIDTH vs thickness. LENGTHENED PARTIALS after failure.",
+        muscles:["Lats — width emphasis","Teres Major","Biceps"],
+        rationale:"Second vertical pull. Wide grip changes the lat emphasis compared to close-grip pulldown on Upper Day — width vs thickness.",
+        subs:["Wide Pull-Up","Close-Grip Pulldown"] },
+      { name:"Cable Lateral Raise", cat:"ISOLATION", sets:2, reps:"10–12",
+        rir:"RIR 0 — to failure", tempo:"2–0–1–0",
+        tempoNote:"2s eccentric / 0s / raise / 0s",
+        teo:"INTRA-SET REST-PAUSE: after failure, hold in the stretched position for 5 seconds, then 3–5 more reps. Third medial delt exposure for the week.",
+        muscles:["Medial Delt"],
+        rationale:"Third medial delt stimulus for the week. The shoulder recovers quickly and responds well to frequency.",
+        subs:["DB Lateral Raise","Machine Lateral Raise"] },
+      { name:"Cable Rear Delt Fly", cat:"ISOLATION", sets:2, reps:"10–12",
+        rir:"RIR 0 — to failure", tempo:"2–2–1–0",
+        tempoNote:"2s eccentric / 2s hold at peak contraction / fly / 0s",
+        teo:"The 2-second hold at peak contraction is where the work is. Face Pull and Rear Delt Fly give two different rear delt stimuli across the week.",
+        muscles:["Rear Delt","Lower Traps","Rhomboids"],
+        rationale:"Second rear delt exposure. Cable rear delt fly differs from face pull — pure transverse abduction vs external rotation emphasis.",
+        subs:["Reverse Pec Deck","Band Rear Delt Fly","DB Rear Delt Fly"] },
+      { name:"Hammer Curl", cat:"ISOLATION", sets:2, reps:"8–10",
+        rir:"RIR 0 — to failure", tempo:"3–0–1–0",
+        tempoNote:"3s eccentric / 0s / curl up / 0s",
+        teo:"Neutral grip throughout — don't supinate. The neutral grip shifts emphasis to the brachialis. 3-second eccentric is the most important variable here.",
+        muscles:["Brachialis","Brachioradialis","Biceps"],
+        rationale:"Second brachialis stimulus. The brachialis sits underneath the bicep — developing it pushes the bicep peak upward and adds overall arm thickness.",
+        subs:["Cross-Body Hammer Curl","Cable Hammer Curl"] },
+      { name:"Tricep Pushdown", cat:"ISOLATION", sets:2, reps:"10–12",
+        rir:"RIR 0 — to failure", tempo:"2–0–1–1",
+        tempoNote:"2s eccentric / 0s / push down / 1s squeeze at full extension",
+        teo:"Second tricep frequency hit. LENGTHENED PARTIALS after failure. Pairs as a superset with Hammer Curl — antagonist muscles, no fatigue interference.",
+        muscles:["Triceps Lateral Head","Triceps Medial Head"],
+        rationale:"Second tricep exposure. Metabolic stress hypertrophy mechanism — different to the heavier overhead extension work on Arms Day.",
+        subs:["Rope Pushdown","Band Pushdown"] },
+    ]
+  }
+];
+
+const WEEK_SCHEDULE = [
+  {week:1,block:"INTRO",type:"intro",note:"Learn every movement. RIR targets +2 above listed. NO failure. Focus purely on technique."},
+  {week:2,block:"BLOCK 1",type:"b1",note:"First real effort week. Hit listed RIR targets. Push isolations to RIR 0."},
+  {week:3,block:"BLOCK 1",type:"b1",note:"Same targets. Progress load where RIR was exceeded last week."},
+  {week:4,block:"BLOCK 1",type:"b1",note:"Push harder on compounds. All sets feel heavier."},
+  {week:5,block:"BLOCK 1",type:"b1",note:"Isolations to true failure. Lengthened partials active on key exercises."},
+  {week:6,block:"BLOCK 1 PEAK",type:"b1peak",note:"Maximum effort across the board. Track everything meticulously."},
+  {week:7,block:"DELOAD",type:"deload",note:"Drop all sets to RIR +3. Reduce load 20%. No intensity techniques."},
+  {week:8,block:"BLOCK 2",type:"b2",note:"All Teo techniques active. Lengthened partials and stretch pauses on every exercise."},
+  {week:9,block:"BLOCK 2",type:"b2",note:"Intra-set rest-pause techniques active on isolation exercises."},
+  {week:10,block:"BLOCK 2",type:"b2",note:"All intensity techniques at full application. Push sets hard."},
+  {week:11,block:"BLOCK 2",type:"b2",note:"Maximum intensity. You know the program — execute it."},
+  {week:12,block:"BLOCK 2 PEAK",type:"b2peak",note:"Final push. Test your limits. Record everything for the next cycle."},
+];
+
+const TYPE_STYLE = {
+  intro:  {bg:"#F2F2EE",border:"#CCCCCC",text:"#444440"},
+  b1:     {bg:"#EAF4FC",border:"#90C8E8",text:"#005F88"},
+  b1peak: {bg:"#E0F0FF",border:"#60A0D0",text:"#004070"},
+  deload: {bg:"#FFF4E6",border:"#E8B870",text:"#904800"},
+  b2:     {bg:"#EEF8E0",border:"#A0CC60",text:"#3D6E00"},
+  b2peak: {bg:"#E4F4D0",border:"#80B840",text:"#2A5000"},
+};
+
+const CAT_STYLE = {
+  "MAX COMPOUND":      {bg:"#EEF8E0",border:"#A0CC60",text:"#3D6E00"},
+  "PRIMARY COMPOUND":  {bg:"#EEF8E0",border:"#A0CC60",text:"#3D6E00"},
+  "SECONDARY COMPOUND":{bg:"#E6F4FC",border:"#80C0E0",text:"#005880"},
+  "MAX ISOLATION":     {bg:"#FCE8F4",border:"#E080C0",text:"#880055"},
+  "ISOLATION":         {bg:"#FFF0E0",border:"#E0A860",text:"#884400"},
+  "PRE-ACTIVATION":    {bg:"#F0ECF8",border:"#B090D8",text:"#503880"},
+  "PRIMARY ISOLATION": {bg:"#FFF0E0",border:"#E0A860",text:"#884400"},
+  "FOREARM":           {bg:"#F4F0E8",border:"#C0B090",text:"#605030"},
+};
+
+const WARMUP_MAP = {
+  "MAX COMPOUND":4,"PRIMARY COMPOUND":3,"SECONDARY COMPOUND":2,
+  "MAX ISOLATION":1,"ISOLATION":1,"PRE-ACTIVATION":1,
+  "PRIMARY ISOLATION":1,"FOREARM":0
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// STATE
+// ─────────────────────────────────────────────────────────────────────────────
+
+let state = {
+  week: 1,
+  activeDay: "lower",
+  activeTab: "program",
+  openCard: null,
+  log: {}
+};
+
+const LS_KEY = "psp_training_log_v1";
+const LS_WEEK = "psp_training_week_v1";
+
+function loadFromStorage() {
+  try {
+    const raw = localStorage.getItem(LS_KEY);
+    if (raw) state.log = JSON.parse(raw);
+    const wk = localStorage.getItem(LS_WEEK);
+    if (wk) state.week = parseInt(wk, 10);
+  } catch(e) { console.warn("Could not load from localStorage", e); }
+}
+
+function saveToStorage() {
+  try {
+    localStorage.setItem(LS_KEY, JSON.stringify(state.log));
+    localStorage.setItem(LS_WEEK, String(state.week));
+  } catch(e) { console.warn("Could not save to localStorage", e); }
+}
+
+function logKey(week, dayId, exIdx) {
+  return `w${week}_${dayId}_ex${exIdx}`;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// RENDER ENGINE
+// ─────────────────────────────────────────────────────────────────────────────
+
+function render() {
+  updateHeader();
+  const content = document.getElementById("content");
+  if (state.activeTab === "program") content.innerHTML = renderProgram();
+  else if (state.activeTab === "warmup") content.innerHTML = renderWarmup();
+  else if (state.activeTab === "schedule") content.innerHTML = renderSchedule();
+  else if (state.activeTab === "data") content.innerHTML = renderData();
+  attachCardListeners();
+}
+
+function updateHeader() {
+  const ws = WEEK_SCHEDULE.find(w => w.week === state.week);
+  const ts = TYPE_STYLE[ws.type];
+  const chip = document.getElementById("week-chip");
+  chip.style.background = ts.bg;
+  chip.style.border = `1px solid ${ts.border}`;
+  document.getElementById("week-num").style.color = ts.text;
+  document.getElementById("week-num").textContent = `WEEK ${state.week}`;
+  document.getElementById("week-block").style.color = ts.text;
+  document.getElementById("week-block").textContent = ws.block;
+  document.getElementById("week-note").textContent = ws.note;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// PROGRAM TAB
+// ─────────────────────────────────────────────────────────────────────────────
+
+function renderProgram() {
+  const day = DAYS.find(d => d.id === state.activeDay);
+  const dayTabsHtml = DAYS.map(d => {
+    const active = d.id === state.activeDay;
+    return `<button class="day-tab${active ? " active" : ""}"
+      style="border-bottom-color:${active ? d.accent : "transparent"}"
+      onclick="switchDay('${d.id}')">
+      <div class="dt-label" style="color:${active ? d.accent : "#999"}">${d.label}</div>
+      <div class="dt-title">${d.title}</div>
+      <div class="dt-int">${d.intensity}</div>
+    </button>`;
+  }).join("");
+
+  const totalSets = day.exercises.reduce((a,e) => a + e.sets, 0);
+
+  const exHtml = day.exercises.map((ex, i) => renderExCard(ex, i, day)).join("");
+
+  return `
+    <div style="background:#fff;border-bottom:1px solid #DDDDD8;display:flex;overflow-x:auto">
+      ${dayTabsHtml}
+    </div>
+    <div style="padding:16px 16px 60px">
+      <div style="margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid #EAEAE6;display:flex;justify-content:space-between;align-items:flex-start">
+        <div>
+          <span style="font-size:8px;letter-spacing:3px;color:${day.accent};border:1px solid ${day.accent};padding:3px 9px;background:${day.accent}22;display:inline-block;margin-bottom:7px;border-radius:3px">${day.sub}</span>
+          <h2 style="font-size:20px;font-weight:700;letter-spacing:-0.5px;color:#111">${day.title}</h2>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:8px;color:#666;letter-spacing:2px;margin-bottom:3px">WORKING SETS</div>
+          <div style="font-size:20px;font-weight:700;color:${day.accent}">${totalSets}</div>
+        </div>
+      </div>
+      ${exHtml}
+    </div>`;
+}
+
+function renderExCard(ex, i, day) {
+  const key = logKey(state.week, day.id, i);
+  const currData = state.log[key] || {};
+  const logged = Object.values(currData).filter(v => v && (v.weight||v.reps)).length;
+  const isOpen = state.openCard === `${day.id}-${i}`;
+  const cat = CAT_STYLE[ex.cat] || CAT_STYLE["ISOLATION"];
+
+  const loggedBadge = logged > 0
+    ? `<span class="ex-logged-badge">${logged}/${ex.sets} LOGGED</span>` : "";
+
+  const body = isOpen ? renderExBody(ex, i, day, currData) : "";
+
+  return `
+    <div class="ex-card${isOpen ? " open" : ""}" style="--accent:${day.accent}" id="card-${day.id}-${i}">
+      <button class="ex-header" onclick="toggleCard('${day.id}',${i})">
+        <div>
+          <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:6px">
+            <div style="width:3px;height:18px;background:${day.accent};border-radius:2px;flex-shrink:0"></div>
+            <span class="ex-name">${ex.name}</span>
+            <span class="ex-cat-badge" style="color:${cat.text};border:1px solid ${cat.border};background:${cat.bg}">${ex.cat}</span>
+            ${loggedBadge}
+          </div>
+          <div class="ex-pills">
+            <span><span class="pill-label">SETS</span><span class="pill-val">${ex.sets}</span></span>
+            <span><span class="pill-label">REPS</span><span class="pill-val">${ex.reps}</span></span>
+            <span><span class="pill-label">TEMPO</span><span class="pill-val" style="color:${day.accent}">${ex.tempo}</span></span>
+          </div>
+        </div>
+        <div class="ex-toggle" style="color:${isOpen ? day.accent : "#888"}">${isOpen ? "×" : "+"}</div>
+      </button>
+      ${body}
+    </div>`;
+}
+
+function renderExBody(ex, i, day, currData) {
+  const prevKey = logKey(state.week - 1, day.id, i);
+  const prevData = state.week > 1 ? (state.log[prevKey] || {}) : {};
+
+  const setInputs = Array.from({length: ex.sets}, (_, s) => {
+    const setNum = s + 1;
+    const curr = currData[setNum];
+    const prev = prevData[setNum];
+    const isSaved = curr && (curr.weight || curr.reps);
+    const prevHtml = (prev && (prev.weight || prev.reps))
+      ? `<div class="prev-badge">Prev: <strong>${prev.weight||"—"}kg × ${prev.reps||"—"} reps</strong></div>` : "";
+
+    return `
+      <div class="set-input-wrap${isSaved ? " saved" : ""}" id="setwrap-${day.id}-${i}-${setNum}">
+        <div class="set-num">SET ${setNum}</div>
+        ${prevHtml}
+        <div class="set-row">
+          <input type="number" inputmode="decimal" placeholder="kg" id="w-${day.id}-${i}-${setNum}"
+            value="${curr ? curr.weight : ""}"
+            class="${isSaved ? "saved" : ""}"
+            onchange="markDirty('${day.id}',${i},${setNum})">
+          <span class="unit">kg</span>
+          <span class="times">×</span>
+          <input type="number" inputmode="numeric" placeholder="reps" id="r-${day.id}-${i}-${setNum}"
+            value="${curr ? curr.reps : ""}"
+            class="${isSaved ? "saved" : ""}"
+            onchange="markDirty('${day.id}',${i},${setNum})">
+          <span class="unit">reps</span>
+          <button class="save-btn" id="savebtn-${day.id}-${i}-${setNum}"
+            onclick="saveSet('${day.id}',${i},${setNum})"
+            style="background:${isSaved ? "#5A8A00" : day.accent};color:#fff">
+            ${isSaved ? "SAVED ✓" : "SAVE"}
+          </button>
+        </div>
+      </div>`;
+  }).join("");
+
+  const muscleHtml = ex.muscles.map(m => `<span class="muscle-tag">${m}</span>`).join("");
+  const subHtml = ex.subs.map(s => `<span class="sub-tag">${s}</span>`).join("");
+
+  return `
+    <div class="ex-body">
+      <div class="ex-divider">
+        <div class="section-label">TEMPO DETAIL</div>
+        <div class="tempo-box">
+          <div class="tempo-main">${ex.tempo}</div>
+          <div class="tempo-detail">${ex.tempoNote}</div>
+        </div>
+        <div class="section-label">RIR TARGET</div>
+        <div style="font-size:12px;font-weight:600;color:#222;margin-bottom:12px">${ex.rir}</div>
+        <div class="teo-box" style="background:${day.accent}10;border:1px solid ${day.accent}44;border-left:3px solid ${day.accent}">
+          <div class="teo-label" style="color:${day.accent}">⚡ TEO TECHNIQUE</div>
+          <div class="teo-text">${ex.teo}</div>
+        </div>
+        <div class="section-label">MUSCLES</div>
+        <div class="muscle-tags">${muscleHtml}</div>
+        <div class="section-label">RATIONALE</div>
+        <div class="rationale-text">${ex.rationale}</div>
+        <div class="section-label">SUBSTITUTIONS</div>
+        <div class="sub-tags">${subHtml}</div>
+        <div class="set-log-header">LOG SETS — WEEK ${state.week}</div>
+        ${setInputs}
+      </div>
+    </div>`;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// WARM-UP TAB
+// ─────────────────────────────────────────────────────────────────────────────
+
+function renderWarmup() {
+  const protocolHtml = [
+    {n:1, sets:[{pct:60,reps:"6–10"}]},
+    {n:2, sets:[{pct:50,reps:"6–10"},{pct:70,reps:"4–6"}]},
+    {n:3, sets:[{pct:45,reps:"6–10"},{pct:65,reps:"4–6"},{pct:85,reps:"3–4"}]},
+    {n:4, sets:[{pct:45,reps:"6–10"},{pct:60,reps:"4–6"},{pct:75,reps:"3–5"},{pct:85,reps:"2–4"}]},
+  ].map(({n, sets}) => `
+    <div class="info-card">
+      <div class="info-card-title">${n} WARM-UP SET${n>1?"S":""}</div>
+      ${sets.map((s,i) => `
+        <div class="info-row">
+          <span style="color:#666">SET ${i+1}</span>
+          <span style="color:#006E9A;font-weight:700">${s.pct}%</span>
+          <span>× ${s.reps} reps</span>
+        </div>`).join("")}
+    </div>`).join("");
+
+  const byDayHtml = DAYS.map(d => `
+    <div class="info-card">
+      <div class="info-card-title" style="color:${d.accent}">${d.label} — ${d.title}</div>
+      ${d.exercises.map((ex,i) => {
+        const wu = WARMUP_MAP[ex.cat] ?? 1;
+        return `<div class="info-row">
+          <span>${ex.name}</span>
+          <span style="color:${wu ? "#333" : "#999"}">${wu ? `${wu} warm-up set${wu>1?"s":""}` : "No warm-up"}</span>
+        </div>`;
+      }).join("")}
+    </div>`).join("");
+
+  return `<div style="padding:20px 16px 60px">
+    <div style="font-size:8px;letter-spacing:4px;color:#555;margin-bottom:16px">WARM-UP PROTOCOL</div>
+    <div class="info-card">
+      <div class="info-card-title" style="color:#006E9A">GENERAL WARM-UP (OPTIONAL)</div>
+      <div style="font-size:11px;color:#333;line-height:1.8">
+        5 min light cardio → 10 arm swings/side → 10 arm circles/side →
+        10 front/back leg swings/side → 10 side/side leg swings →
+        15 cable external rotations/side
+      </div>
+    </div>
+    <div style="font-size:9px;color:#006E9A;font-weight:700;letter-spacing:2px;margin:16px 0 10px">EXERCISE-SPECIFIC SETS</div>
+    ${protocolHtml}
+    <div style="font-size:8px;letter-spacing:4px;color:#555;margin:20px 0 10px">WARM-UP SETS BY DAY</div>
+    ${byDayHtml}
+  </div>`;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// SCHEDULE TAB
+// ─────────────────────────────────────────────────────────────────────────────
+
+function renderSchedule() {
+  const weeksHtml = WEEK_SCHEDULE.map(w => {
+    const ts = TYPE_STYLE[w.type];
+    const isCurrent = w.week === state.week;
+    return `
+      <div class="week-row${isCurrent ? " current" : ""}" onclick="jumpToWeek(${w.week})">
+        <div class="week-dot" style="background:${ts.bg};border-color:${ts.border};color:${ts.text};${isCurrent ? `box-shadow:0 0 0 2px ${ts.border}` : ""}">
+          ${w.week}
+        </div>
+        <div style="flex:1">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px">
+            <span style="font-size:9px;font-weight:700;color:${ts.text};letter-spacing:2px">${w.block}</span>
+            ${isCurrent ? '<span style="font-size:8px;color:#5A8A00;background:#EEF8E0;border:1px solid #A0CC60;padding:1px 6px;border-radius:2px">CURRENT</span>' : ""}
+          </div>
+          <div style="font-size:10px;color:#333;line-height:1.5">${w.note}</div>
+        </div>
+      </div>`;
+  }).join("");
+
+  const schedRows = [
+    ["MON","DAY A — LOWER","#5A8A00",true],
+    ["TUE","DAY B — UPPER","#006E9A",true],
+    ["WED","REST","#999",false],
+    ["THU","DAY C — ARMS & DELTS","#AA0066",true],
+    ["FRI","DAY D — FULL BODY","#B05500",true],
+    ["SAT","REST / Light Cardio","#999",false],
+    ["SUN","REST","#999",false],
+  ].map(([day,session,col,active]) => `
+    <div class="sched-row">
+      <div style="width:36px;font-size:9px;color:#555;letter-spacing:2px;font-weight:600">${day}</div>
+      <div style="width:6px;height:6px;background:${col};border-radius:50%;flex-shrink:0"></div>
+      <div style="font-size:12px;color:${active ? "#111" : "#777"};font-weight:${active ? "600" : "400"}">${session}</div>
+    </div>`).join("");
+
+  const progRules = [
+    ["Load Progression","If you completed all reps with 1+ RIR to spare → add load next session."],
+    ["Rep Progression","If you failed below the rep range → maintain load, rebuild reps before adding weight."],
+    ["Failure Definition","Compounds: zero reps left but rack safely. Isolations: attempt the extra rep."],
+    ["Teo Techniques","Lengthened partials, stretch pauses and intra-set rest-pause are applied AFTER primary reps."],
+    ["Deload (Week 7)","All sets at RIR +3. Reduce load 20%. No intensity techniques. Full movement quality focus."],
+  ].map(([t,d]) => `
+    <div class="prog-row">
+      <div class="prog-title">${t}</div>
+      <div class="prog-desc">${d}</div>
+    </div>`).join("");
+
+  return `<div style="padding:20px 16px 60px">
+    <div style="font-size:8px;letter-spacing:4px;color:#555;margin-bottom:14px">12-WEEK SCHEDULE</div>
+    ${weeksHtml}
+    <div style="font-size:8px;letter-spacing:4px;color:#555;margin:22px 0 12px">WEEKLY STRUCTURE</div>
+    ${schedRows}
+    <div class="info-card" style="margin-top:20px">
+      <div class="info-card-title">PROGRESSION RULES</div>
+      ${progRules}
+    </div>
+  </div>`;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// DATA TAB
+// ─────────────────────────────────────────────────────────────────────────────
+
+function renderData() {
+  const totalEntries = Object.values(state.log)
+    .reduce((a, sets) => a + Object.values(sets).filter(s => s && (s.weight||s.reps)).length, 0);
+
+  return `<div style="padding:20px 16px 60px">
+    <div style="font-size:8px;letter-spacing:4px;color:#555;margin-bottom:16px">DATA MANAGEMENT</div>
+    <div class="info-card">
+      <div class="info-card-title">STORAGE INFO</div>
+      <div class="info-row"><span>Total sets logged</span><span style="font-weight:700;color:#5A8A00">${totalEntries}</span></div>
+      <div class="info-row"><span>Current week</span><span style="font-weight:700">Week ${state.week}</span></div>
+      <div class="info-row"><span>Storage</span><span style="color:#333">Local (this device)</span></div>
+    </div>
+    <div class="info-card" style="margin-top:10px">
+      <div class="info-card-title">BACKUP & RESTORE</div>
+      <div style="font-size:11px;color:#444;line-height:1.7;margin-bottom:14px">
+        Export saves all your weights and reps to a JSON file. Store it in iCloud Files for safekeeping.
+        Import restores from a previously exported file.
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <button class="data-btn" onclick="exportData()" style="background:#5A8A00;color:#fff;border-color:#5A8A00;padding:12px">
+          ↓ EXPORT DATA (JSON)
+        </button>
+        <button class="data-btn" onclick="document.getElementById('import-file').click()" style="padding:12px">
+          ↑ IMPORT DATA (JSON)
+        </button>
+        <input type="file" id="import-file" accept=".json" style="display:none" onchange="importData(event)">
+        <button class="data-btn danger" onclick="confirmClear()" style="padding:12px">
+          ✕ CLEAR ALL DATA
+        </button>
+      </div>
+    </div>
+    <div class="info-card" style="margin-top:10px">
+      <div class="info-card-title">HOW TO SAVE TO HOME SCREEN</div>
+      <div style="font-size:11px;color:#333;line-height:1.9">
+        1. Open this file in Safari on iPhone<br>
+        2. Tap the Share button (box with arrow)<br>
+        3. Tap <strong>Add to Home Screen</strong><br>
+        4. Tap <strong>Add</strong><br>
+        5. The app appears on your home screen with the PSP icon<br><br>
+        <strong>Data persists</strong> as long as you don't clear Safari data. Export weekly as a backup.
+      </div>
+    </div>
+  </div>`;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// EVENT HANDLERS
+// ─────────────────────────────────────────────────────────────────────────────
+
+function switchTab(tab, btn) {
+  state.activeTab = tab;
+  document.querySelectorAll(".nav-tab").forEach(t => t.classList.remove("active"));
+  if (btn) btn.classList.add("active");
+  else {
+    document.querySelectorAll(".nav-tab").forEach(t => {
+      if (t.textContent.toLowerCase().trim() === tab) t.classList.add("active");
+    });
+  }
+  render();
+  document.getElementById("content").scrollTop = 0;
+}
+
+function switchDay(dayId) {
+  state.activeDay = dayId;
+  state.openCard = null;
+  render();
+}
+
+function changeWeek(delta) {
+  const newWeek = Math.max(1, Math.min(12, state.week + delta));
+  if (newWeek !== state.week) {
+    state.week = newWeek;
+    state.openCard = null;
+    saveToStorage();
+    render();
+  }
+}
+
+function jumpToWeek(w) {
+  state.week = w;
+  state.activeTab = "program";
+  state.openCard = null;
+  saveToStorage();
+  document.querySelectorAll(".nav-tab").forEach(t => {
+    t.classList.toggle("active", t.textContent.toLowerCase().trim() === "program");
+  });
+  render();
+}
+
+function toggleCard(dayId, exIdx) {
+  const key = `${dayId}-${exIdx}`;
+  state.openCard = state.openCard === key ? null : key;
+  render();
+  if (state.openCard) {
+    setTimeout(() => {
+      const card = document.getElementById(`card-${key}`);
+      if (card) card.scrollIntoView({behavior:"smooth", block:"nearest"});
+    }, 50);
+  }
+}
+
+function markDirty(dayId, exIdx, setNum) {
+  const btn = document.getElementById(`savebtn-${dayId}-${exIdx}-${setNum}`);
+  const day = DAYS.find(d => d.id === dayId);
+  if (btn && day) {
+    btn.style.background = day.accent;
+    btn.textContent = "SAVE";
+  }
+}
+
+function saveSet(dayId, exIdx, setNum) {
+  const wEl = document.getElementById(`w-${dayId}-${exIdx}-${setNum}`);
+  const rEl = document.getElementById(`r-${dayId}-${exIdx}-${setNum}`);
+  if (!wEl || !rEl) return;
+  const weight = wEl.value.trim();
+  const reps = rEl.value.trim();
+  if (!weight && !reps) return;
+
+  const key = logKey(state.week, dayId, exIdx);
+  if (!state.log[key]) state.log[key] = {};
+  state.log[key][setNum] = { weight, reps };
+  saveToStorage();
+
+  // Update UI without full re-render
+  const wrap = document.getElementById(`setwrap-${dayId}-${exIdx}-${setNum}`);
+  const btn = document.getElementById(`savebtn-${dayId}-${exIdx}-${setNum}`);
+  if (wrap) { wrap.classList.add("saved"); }
+  if (btn) { btn.style.background = "#5A8A00"; btn.textContent = "SAVED ✓"; }
+  wEl.classList.add("saved");
+  rEl.classList.add("saved");
+
+  // Update logged badge on card header
+  const currData = state.log[key] || {};
+  const logged = Object.values(currData).filter(v => v && (v.weight||v.reps)).length;
+  const day = DAYS.find(d => d.id === dayId);
+  const ex = day.exercises[exIdx];
+  const badgeContainer = document.querySelector(`#card-${dayId}-${exIdx} .ex-name`).parentElement;
+  let badge = badgeContainer.querySelector(".ex-logged-badge");
+  if (!badge) {
+    badge = document.createElement("span");
+    badge.className = "ex-logged-badge";
+    badgeContainer.appendChild(badge);
+  }
+  badge.textContent = `${logged}/${ex.sets} LOGGED`;
+}
+
+function attachCardListeners() {
+  // Listeners are inline onclick — nothing extra needed
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// DATA EXPORT / IMPORT
+// ─────────────────────────────────────────────────────────────────────────────
+
+function exportData() {
+  const payload = { log: state.log, week: state.week, exported: new Date().toISOString() };
+  const json = JSON.stringify(payload, null, 2);
+  const blob = new Blob([json], {type: "application/json"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `aos-q2-2026-backup-${new Date().toISOString().split("T")[0]}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function importData(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      const parsed = JSON.parse(e.target.result);
+      if (parsed.log) {
+        state.log = parsed.log;
+        if (parsed.week) state.week = parsed.week;
+        saveToStorage();
+        render();
+        alert("Data imported successfully!");
+      } else {
+        alert("Invalid backup file.");
+      }
+    } catch(err) {
+      alert("Could not read file. Make sure it's a valid AOS Q2 2026 Training backup.");
+    }
+  };
+  reader.readAsText(file);
+  event.target.value = "";
+}
+
+function confirmClear() {
+  if (confirm("Clear ALL logged data? This cannot be undone. Export a backup first.")) {
+    state.log = {};
+    saveToStorage();
+    render();
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────────────────────────────────────────
+
+loadFromStorage();
+render();
+</script>
+</body>
+</html>
